@@ -154,6 +154,13 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f
       </button>
     </div>
 
+    <div class="filter-group" style="margin-bottom:20px;">
+      <label>📦 题库选择</label>
+      <select id="bankSelect" onchange="switchBank()" style="width:100%;padding:10px 14px;border:2px solid #e0e0e0;border-radius:12px;font-size:14px;background:#fff;cursor:pointer;outline:none;">
+        <option value="questions.json">思想道德与法治（默认）</option>
+      </select>
+    </div>
+
     <h3>🎯 选择题型范围</h3>
     <div class="filter-group">
       <label>章节选择</label>
@@ -305,10 +312,30 @@ async function loadBank() {
     renderChips('typeChips', types, 'type');
     renderChips('diffChips', diffs, 'diff');
     updateCount();
+    
+    // 加载题库清单
+    loadBankList(bankFile);
   } catch(e) {
     document.getElementById('bankTitle').textContent = '❌ 加载失败';
     document.getElementById('bankSub').textContent = '请检查题库文件: ' + bankFile;
   }
+}
+
+async function loadBankList(currentFile) {
+  try {
+    const resp = await fetch('banks.json');
+    if (!resp.ok) return;
+    const banks = await resp.json();
+    const sel = document.getElementById('bankSelect');
+    sel.innerHTML = banks.map(b => 
+      `<option value="${b.file}" ${b.file === currentFile ? 'selected' : ''}>${b.name} — ${b.desc}</option>`
+    ).join('');
+  } catch(e) { /* banks.json optional */ }
+}
+
+function switchBank() {
+  const bank = document.getElementById('bankSelect').value;
+  location.search = bank === 'questions.json' ? '' : '?bank=' + encodeURIComponent(bank);
 }
 
 const selected = {
