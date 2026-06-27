@@ -270,10 +270,20 @@ function renderChips(containerId, items, category) {
     return `<span class="chip ${isActive ? 'active' : ''}" data-value="${item}" onclick="toggleChip(this, '${category}')">${item}</span>`;
   }).join('');
   const allBtn = document.createElement('span');
-  allBtn.className = 'chip active';
+  allBtn.className = 'chip';
   allBtn.textContent = '全选';
   allBtn.onclick = () => toggleAll(containerId, category);
   container.prepend(allBtn);
+  syncAllChip(containerId, category);
+}
+
+function syncAllChip(containerId, category) {
+  const container = document.getElementById(containerId);
+  const allBtn = container.querySelector('.chip:first-child');
+  if (!allBtn || allBtn.textContent !== '全选') return;
+  const chips = container.querySelectorAll('.chip:not(:first-child)');
+  const allActive = chips.length > 0 && [...chips].every(c => c.classList.contains('active'));
+  allBtn.classList.toggle('active', allActive);
 }
 
 const selected = {
@@ -285,6 +295,7 @@ const selected = {
 function toggleChip(el, category) {
   el.classList.toggle('active');
   updateSelected(category);
+  syncAllChip(el.closest('.chips').id, category);
   updateCount();
 }
 
@@ -294,6 +305,7 @@ function toggleAll(containerId, category) {
   const allActive = [...chips].every(c => c.classList.contains('active'));
   chips.forEach(c => c.classList.toggle('active', !allActive));
   updateSelected(category);
+  syncAllChip(containerId, category);
   updateCount();
 }
 
@@ -379,9 +391,10 @@ function renderQuestion() {
     let cls = 'option';
     if (showFeedback) {
       cls += ' disabled';
+      const labels = getAnswerLabels(q);
       if (prevAnswer.includes(opt.label))
-        cls += q.answer.includes(opt.label) ? ' correct' : ' wrong';
-      else if (q.answer.includes(opt.label))
+        cls += labels.includes(opt.label) ? ' correct' : ' wrong';
+      else if (labels.includes(opt.label))
         cls += ' show-correct';
     }
     
@@ -394,7 +407,8 @@ function renderQuestion() {
     </div>`;
   }).join('');
   
-  if (isMulti && !showFeedback && prevAnswer) {
+  // 预选状态：考试模式/练习模式回退时显示之前的选择
+  if (!showFeedback && prevAnswer) {
     container.querySelectorAll('.option').forEach(el => {
       if (prevAnswer.includes(el.dataset.label)) el.classList.add('selected');
     });
@@ -496,11 +510,21 @@ function prevQuestion() {
   }
 }
 
+function getAnswerLabels(q) {
+  // 单选/多选答案就是标签："A"→["A"]，"ABCD"→["A","B","C","D"]
+  if (/^[A-E]+$/.test(q.answer)) return q.answer.split('');
+  // 判断题答案"正确"/"错误"→匹配选项文字拿到标签
+  for (const opt of q.options) {
+    if (opt.text === q.answer) return [opt.label];
+  }
+  return q.answer.split('').filter(c => c.trim());
+}
+
 function isAnswerCorrect(q, userAns) {
   if (!userAns || userAns.length === 0) return false;
-  const correct = q.answer.split('').filter(c => c.trim());
+  const correctLabels = getAnswerLabels(q);
   const user = [...userAns].sort();
-  return JSON.stringify(correct.sort()) === JSON.stringify(user);
+  return JSON.stringify(correctLabels.sort()) === JSON.stringify(user);
 }
 
 function examSubmit() {
