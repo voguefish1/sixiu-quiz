@@ -138,7 +138,7 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f
 </head>
 <body>
 <div class="container">
-  <div class="header">
+  <div class="header" id="mainHeader">
     <h1>📚 思想道德与法治 — 刷题助手</h1>
     <p>共计 992 题 | 单选 182 · 多选 288 · 判断 522 | 覆盖绪论~第六章</p>
   </div>
@@ -263,6 +263,7 @@ function goHome() {
   quizStarted = false;
   quizFinished = false;
   userAnswers = {};
+  document.getElementById('mainHeader').classList.remove('hidden');
   document.getElementById('quizScreen').classList.add('hidden');
   document.getElementById('resultScreen').classList.add('hidden');
   document.getElementById('selectScreen').classList.remove('hidden');
@@ -368,6 +369,7 @@ function startQuiz() {
   document.getElementById('selectScreen').classList.add('hidden');
   document.getElementById('quizScreen').classList.remove('hidden');
   document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('mainHeader').classList.add('hidden');
   document.getElementById('examBanner').classList.toggle('hidden', quizMode !== 'exam');
   document.getElementById('quizSidebar').classList.toggle('hidden', quizMode !== 'exam');
   document.getElementById('endBtn').textContent = quizMode === 'exam' ? '📮 交卷' : '🏁 提前结束';
