@@ -206,7 +206,10 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f
             <button class="btn btn-outline btn-sm hidden" id="submitBtn" onclick="submitAnswer()">📝 提交答案</button>
             <button class="btn btn-primary btn-sm hidden" id="nextBtn" onclick="nextQuestion()">下一题 ➡</button>
           </div>
-          <button class="btn btn-outline btn-sm" id="endBtn" onclick="endQuiz()">🏁 交卷</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="goHome()">🏠</button>
+            <button class="btn btn-outline btn-sm" id="endBtn" onclick="endQuiz()">🏁 交卷</button>
+          </div>
         </div>
       </div>
       <div class="quiz-sidebar hidden" id="quizSidebar">
@@ -231,6 +234,9 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f
       <div class="tab hidden" id="tabAllAnswers" onclick="switchTab('allAnswers')">📝 全部答案</div>
     </div>
     <div id="tabContent"></div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="btn btn-outline" onclick="goHome()">🏠 返回首页</button>
+    </div>
   </div>
 </div>
 
@@ -251,6 +257,17 @@ function setMode(mode) {
   document.getElementById(mode === 'practice' ? 'modePractice' : 'modeExam').classList.add('active');
   document.getElementById('practiceOptions').classList.toggle('hidden', mode === 'exam');
   document.getElementById('startBtn').textContent = mode === 'exam' ? '🚀 开始考试' : '🚀 开始刷题';
+}
+
+function goHome() {
+  quizStarted = false;
+  quizFinished = false;
+  userAnswers = {};
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('selectScreen').classList.remove('hidden');
+  updateCount();
+  window.scrollTo(0, 0);
 }
 
 function init() {
