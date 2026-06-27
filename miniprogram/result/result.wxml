@@ -1,0 +1,39 @@
+<view class="container">
+  <view class="card">
+    <view class="score-circle" style="background:{{stats.rate>=90?'#34a853':stats.rate>=70?'#fb8c00':'#ea4335'}}">
+      {{stats.rate}}%
+    </view>
+    <view class="stats-text">共{{stats.total}}题 | ✅{{stats.correct}} | ❌{{stats.wrong}}</view>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{activeTab==='summary'?'active':''}}" bindtap="switchTab" data-tab="summary">📊 总览</view>
+    <view class="tab {{activeTab==='detail'?'active':''}}" bindtap="switchTab" data-tab="detail">📋 分析</view>
+    <view class="tab {{activeTab==='review'?'active':''}}" bindtap="switchTab" data-tab="review">🔍 错题({{wrongQuestions.length}})</view>
+  </view>
+
+  <view wx:if="{{activeTab==='summary'}}" class="card">
+    <view class="big-score">{{stats.rate}}%</view>
+  </view>
+
+  <view wx:if="{{activeTab==='detail'}}" class="card">
+    <view class="section">📖 按章节</view>
+    <view wx:for="{{stats.chapterStats}}" wx:key="*this" class="stat-row">
+      <text>{{index}}</text>
+      <text>{{item.correct}}/{{item.total}}</text>
+      <view class="bar"><view class="bar-fill" style="width:{{item.total>0?item.correct/item.total*100:0}}%"></view></view>
+    </view>
+  </view>
+
+  <view wx:if="{{activeTab==='review'}}" class="card">
+    <view wx:if="{{wrongQuestions.length===0}}" style="text-align:center;padding:80rpx;color:#888;">🎉 全部正确！</view>
+    <view wx:for="{{wrongQuestions}}" wx:key="id" class="wrong-card">
+      <view class="wrong-q">{{index+1}}. {{item.question}}</view>
+      <text class="your">你的答案：{{item.userAns||'未作答'}}</text>
+      <text class="correct">正确答案：{{item.answer}}</text>
+    </view>
+    <button wx:if="{{wrongQuestions.length>0}}" class="retry-btn" bindtap="retryWrong">🔄 重练错题({{wrongQuestions.length}})</button>
+  </view>
+
+  <button class="home-btn" bindtap="goHome">🏠 返回首页</button>
+</view>

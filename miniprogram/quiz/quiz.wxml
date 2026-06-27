@@ -1,0 +1,44 @@
+<view class="container">
+  <view class="exam-banner" wx:if="{{examMode}}">⚠️ 考试模式：答完交卷统一出分</view>
+
+  <view class="quiz-card">
+    <view class="meta">
+      <text class="badge badge-ch">{{currentQuestion.chapter}}</text>
+      <text class="badge badge-type">{{currentQuestion.type}}</text>
+      <text class="badge badge-diff">{{currentQuestion.difficulty}}</text>
+      <text class="progress">{{currentIndex+1}}/{{questions.length}}</text>
+    </view>
+
+    <view class="q-text">{{currentQuestion.question}}</view>
+
+    <text wx:if="{{isMulti&&!isAnswered}}" class="hint">💡 多选题，选择后点提交</text>
+
+    <view class="options">
+      <view wx:for="{{currentQuestion.options}}" wx:key="label"
+        class="opt {{(showFeedback&&isAnswered)?(item.isCorrect?'correct':'wrong'):''}} {{multiSelected.indexOf(item.label)>-1?'selected':''}}"
+        bindtap="selectOption" data-label="{{item.label}}">
+        <view class="opt-label">{{item.label}}</view>
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+
+    <button wx:if="{{isMulti&&!isAnswered&&!examMode||isMulti&&!isAnswered&&examMode}}" class="submit-btn" bindtap="submitMulti">📝 提交答案</button>
+
+    <view wx:if="{{showFeedback}}" class="feedback {{feedbackCorrect?'correct':'wrong'}}">{{feedbackText}}</view>
+
+    <view class="nav-row">
+      <button class="nav-btn" bindtap="prevQuestion" disabled="{{currentIndex===0}}">⬅ 上一题</button>
+      <button wx:if="{{isAnswered}}" class="nav-btn primary" bindtap="nextQuestion">{{isLast?'🏁 查看结果':'下一题 ➡'}}</button>
+      <button wx:if="{{examMode}}" class="nav-btn danger" bindtap="submitExam">📮 交卷</button>
+    </view>
+  </view>
+
+  <!-- 答题卡 -->
+  <view wx:if="{{examMode}}" class="nav-panel">
+    <view class="panel-title">📋 答题卡</view>
+    <view class="dot-grid">
+      <view wx:for="{{navDots}}" wx:key="index" class="dot {{item.current?'current':''}} {{item.answered?'answered':''}}" bindtap="jumpTo" data-index="{{item.index}}">{{item.index+1}}</view>
+    </view>
+    <view class="dot-stats">✅已答{{navAnswered}} ❓未答{{navUnanswered}}</view>
+  </view>
+</view>

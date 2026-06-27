@@ -1,0 +1,14 @@
+{
+  "description": "刷题助手",
+  "packOptions": { "ignore": [] },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.0.0",
+  "appid": "your-appid-here",
+  "projectname": "shuati-helper"
+}

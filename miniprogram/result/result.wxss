@@ -1,0 +1,16 @@
+.container{padding:20rpx;}
+.card{background:#fff;border-radius:24rpx;padding:32rpx;margin-bottom:20rpx;}
+.score-circle{width:200rpx;height:200rpx;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:56rpx;font-weight:700;margin:0 auto 24rpx;}
+.stats-text{text-align:center;font-size:28rpx;color:#666;}
+.tabs{display:flex;background:#e0e0e0;border-radius:16rpx;padding:4rpx;margin-bottom:20rpx;}
+.tab{flex:1;text-align:center;padding:16rpx;border-radius:12rpx;font-size:26rpx;font-weight:600;}
+.tab.active{background:#fff;}
+.section{font-weight:600;margin-bottom:12rpx;}
+.stat-row{display:flex;align-items:center;gap:12rpx;padding:8rpx 0;font-size:26rpx;}
+.bar{flex:1;height:12rpx;background:#e0e0e0;border-radius:6rpx;}
+.bar-fill{height:100%;background:#667eea;border-radius:6rpx;}
+.wrong-card{border:1px solid #eee;border-radius:16rpx;padding:24rpx;margin-bottom:16rpx;border-left:4rpx solid #d93025;}
+.wrong-q{font-weight:600;margin-bottom:8rpx;}
+.your{color:#d93025;text-decoration:line-through;font-size:26rpx;display:block;}
+.correct{color:#137333;font-size:26rpx;display:block;}
+.retry-btn,.home-btn{background:#667eea;color:#fff;border-radius:50rpx;margin-top:20rpx;}

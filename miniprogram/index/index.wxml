@@ -1,0 +1,46 @@
+<view class="container">
+  <view class="header">
+    <text class="title">{{bankInfo.title || '刷题助手'}}</text>
+    <text class="sub" wx:if="{{bankInfo.subtitle}}">{{bankInfo.subtitle}}</text>
+  </view>
+
+  <view class="card">
+    <!-- 题库选择 -->
+    <view class="section-title">📦 题库选择</view>
+    <scroll-view scroll-x class="chip-row">
+      <view wx:for="{{banks}}" wx:key="file" class="chip {{index===currentBank?'active':''}}" bindtap="selectBank" data-idx="{{index}}">
+        {{item.name}} · {{item.desc}}
+      </view>
+    </scroll-view>
+
+    <!-- 模式选择 -->
+    <view class="section-title">🎯 答题模式</view>
+    <view class="mode-row">
+      <view class="mode-btn {{quizMode==='practice'?'active':''}}" bindtap="setMode" data-mode="practice">📝 练习</view>
+      <view class="mode-btn {{quizMode==='exam'?'active':''}}" bindtap="setMode" data-mode="exam">🎯 考试</view>
+    </view>
+
+    <!-- 章节 -->
+    <view class="section-title">章节</view>
+    <view class="chip-row wrap">
+      <view class="chip {{filters.chapters.length===chapters.length?'active':''}}" bindtap="toggleAll" data-cat="chapters">全选</view>
+      <view wx:for="{{chapters}}" wx:key="*this" class="chip {{filters.chapters.indexOf(item)>-1?'active':''}}" bindtap="toggleFilter" data-cat="chapters" data-val="{{item}}">{{item}}</view>
+    </view>
+
+    <!-- 题型 -->
+    <view class="section-title">题型</view>
+    <view class="chip-row wrap">
+      <view class="chip {{filters.types.length===types.length?'active':''}}" bindtap="toggleAll" data-cat="types">全选</view>
+      <view wx:for="{{types}}" wx:key="*this" class="chip {{filters.types.indexOf(item)>-1?'active':''}}" bindtap="toggleFilter" data-cat="types" data-val="{{item}}">{{item}}</view>
+    </view>
+
+    <!-- 难度 -->
+    <view class="section-title">难度</view>
+    <view class="chip-row wrap">
+      <view class="chip {{filters.diffs.length===diffs.length?'active':''}}" bindtap="toggleAll" data-cat="diffs">全选</view>
+      <view wx:for="{{diffs}}" wx:key="*this" class="chip {{filters.diffs.indexOf(item)>-1?'active':''}}" bindtap="toggleFilter" data-cat="diffs" data-val="{{item}}">{{item}}</view>
+    </view>
+
+    <button class="start-btn" bindtap="startQuiz" loading="{{loading}}">🚀 开始答题（共{{questionCount}}题）</button>
+  </view>
+</view>
