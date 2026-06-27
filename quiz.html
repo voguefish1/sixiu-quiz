@@ -123,8 +123,6 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f
 .multi-hint { font-size: 13px; color: #888; margin-bottom: 8px; }
 .exam-header { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 8px 16px; margin-bottom: 16px; font-size: 13px; color: #856404; text-align: center; }
 
-select#bankSelect { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-
 @media (max-width: 750px) {
   .container { padding: 10px; }
   .header { padding: 20px; }
@@ -158,9 +156,7 @@ select#bankSelect { -webkit-appearance: none; appearance: none; background-image
 
     <div class="filter-group" style="margin-bottom:20px;">
       <label>📦 题库选择</label>
-      <select id="bankSelect" onchange="switchBank()" style="width:100%;padding:10px 14px;border:2px solid #e0e0e0;border-radius:12px;font-size:14px;background:#fff;cursor:pointer;outline:none;">
-        <option value="questions.json">思想道德与法治（默认）</option>
-      </select>
+      <div class="chips" id="bankChips"></div>
     </div>
 
     <h3>🎯 选择题型范围</h3>
@@ -324,35 +320,25 @@ async function loadBank() {
 }
 
 async function loadBankList(currentFile) {
-  const sel = document.getElementById('bankSelect');
-  // 硬编码兜底列表，确保移动端不出问题
   const fallback = [
     {file:'questions.json', name:'思想道德与法治', desc:'992题'},
     {file:'banks/jindaishi.json', name:'中国近代史', desc:'116题'}
   ];
+  let banks = fallback;
   
   try {
     const resp = await fetch('banks.json');
-    if (resp.ok) {
-      const banks = await resp.json();
-      if (banks && banks.length > 0) {
-        sel.innerHTML = banks.map(b => 
-          `<option value="${b.file}" ${b.file === currentFile ? 'selected' : ''}>${b.name} — ${b.desc}</option>`
-        ).join('');
-        return;
-      }
-    }
-  } catch(e) { /* fallback below */ }
+    if (resp.ok) { const data = await resp.json(); if (data && data.length) banks = data; }
+  } catch(e) {}
   
-  // 使用兜底列表
-  sel.innerHTML = fallback.map(b => 
-    `<option value="${b.file}" ${b.file === currentFile ? 'selected' : ''}>${b.name} — ${b.desc}</option>`
+  const container = document.getElementById('bankChips');
+  container.innerHTML = banks.map(b => 
+    `<span class="chip ${b.file === currentFile ? 'active' : ''}" data-file="${b.file}" onclick="switchBank('${b.file}')">${b.name}<br><small>${b.desc}</small></span>`
   ).join('');
 }
 
-function switchBank() {
-  const bank = document.getElementById('bankSelect').value;
-  location.search = bank === 'questions.json' ? '' : '?bank=' + encodeURIComponent(bank);
+function switchBank(file) {
+  location.search = file === 'questions.json' ? '' : '?bank=' + encodeURIComponent(file);
 }
 
 const selected = {
