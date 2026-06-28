@@ -252,6 +252,7 @@ let quizMode = 'practice';
 let filteredQuestions = [];
 let quizQuestions = [];
 let currentIndex = 0;
+let lastNavIdx = -1;
 let userAnswers = {};
 let quizStarted = false;
 let quizFinished = false;
@@ -422,6 +423,8 @@ function startQuiz() {
   }
   
   currentIndex = 0;
+  lastNavIdx = -1;
+  answeredCount = 0;
   userAnswers = {};
   quizStarted = true;
   quizFinished = false;
@@ -519,11 +522,17 @@ function renderQuestion() {
     document.getElementById('nextBtn').textContent = (currentIndex >= quizQuestions.length - 1 && isAnswered) ? '🏁 查看结果' : '下一题 ➡';
   }
   
-  if (isExam) renderNavPanel();
+  if (isExam) {
+    // 增量更新导航面板：只改上一个和当前格子的样式
+    if (lastNavIdx >= 0 && lastNavIdx !== currentIndex) updateNavDot(lastNavIdx, false);
+    updateNavDot(currentIndex, true);
+    lastNavIdx = currentIndex;
+  }
   window.scrollTo(0, 0);
 }
 
 function renderNavPanel() {
+  // 首次构建完整网格（仅 startQuiz 调用一次）
   const grid = document.getElementById('navGrid');
   let html = '';
   for (let i = 0; i < quizQuestions.length; i++) {
@@ -531,11 +540,33 @@ function renderNavPanel() {
     let cls = 'nav-dot';
     if (i === currentIndex) cls += ' current';
     if (answered) cls += ' answered';
-    html += `<div class="${cls}" onclick="jumpTo(${i})">${i + 1}</div>`;
+    html += `<div class="${cls}" data-idx="${i}" onclick="jumpTo(${i})">${i + 1}</div>`;
   }
   grid.innerHTML = html;
-  document.getElementById('navAnswered').textContent = quizQuestions.filter(q => !!userAnswers[q.id]).length;
-  document.getElementById('navUnanswered').textContent = quizQuestions.filter(q => !userAnswers[q.id]).length;
+  answeredCount = quizQuestions.filter(q => !!userAnswers[q.id]).length;
+  document.getElementById('navAnswered').textContent = answeredCount;
+  document.getElementById('navUnanswered').textContent = quizQuestions.length - answeredCount;
+}
+
+let answeredCount = 0;
+function updateNavDot(idx, isCurrent) {
+  const grid = document.getElementById('navGrid');
+  const dot = grid.querySelector(`[data-idx="${idx}"]`);
+  if (!dot) return;
+  dot.className = 'nav-dot';
+  if (isCurrent) dot.classList.add('current');
+  if (!!userAnswers[quizQuestions[idx]?.id]) dot.classList.add('answered');
+}
+
+function markNavDotAnswered(qId) {
+  // 找到对应题号并更新样式+计数
+  const idx = quizQuestions.findIndex(q => q.id === qId);
+  if (idx < 0) return;
+  const dot = document.getElementById('navGrid')?.querySelector(`[data-idx="${idx}"]`);
+  if (dot) dot.classList.add('answered');
+  answeredCount = quizQuestions.filter(q => !!userAnswers[q.id]).length;
+  document.getElementById('navAnswered').textContent = answeredCount;
+  document.getElementById('navUnanswered').textContent = quizQuestions.length - answeredCount;
 }
 
 function jumpTo(index) {
@@ -553,6 +584,7 @@ function submitSingleAnswer(label) {
   const q = quizQuestions[currentIndex];
   userAnswers[q.id] = [label];
   if (quizMode === 'exam') {
+    markNavDotAnswered(q.id);
     if (currentIndex >= quizQuestions.length - 1) renderQuestion();
     else { currentIndex++; renderQuestion(); }
   } else renderQuestion();
@@ -567,13 +599,17 @@ function submitAnswer() {
   if (labels.length === 0) { alert('请至少选择一个选项！'); return; }
   userAnswers[q.id] = labels;
   if (quizMode === 'exam') {
+    markNavDotAnswered(q.id);
     if (currentIndex >= quizQuestions.length - 1) renderQuestion();
     else { currentIndex++; renderQuestion(); }
   } else renderQuestion();
 }
 
 function nextQuestion() {
-  if (currentIndex >= quizQuestions.length - 1) showResults();
+  if (currentIndex >= quizQuestions.length - 1) {
+    if (quizMode === 'exam') endQuiz();
+    else showResults();
+  }
   else { currentIndex++; renderQuestion(); }
 }
 
