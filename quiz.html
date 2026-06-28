@@ -176,6 +176,12 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #f
       <button class="btn btn-primary" id="startBtn" onclick="startQuiz()">🚀 开始刷题</button>
       <span id="questionCount" style="color: #888; font-size: 14px;"></span>
     </div>
+    <div style="margin-top: 12px;" id="examCountRow" class="hidden">
+      <label style="font-size: 14px; color: #555; margin-right: 8px;">📊 抽题数量：</label>
+      <input type="number" id="examCountInput" value="50" min="1" max="9999" style="width:80px;padding:6px 10px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;text-align:center;" onchange="clampExamCount()">
+      <button class="btn btn-outline btn-sm" onclick="setExamCountAll()" style="margin-left:6px;">全部</button>
+      <span id="examCountHint" style="font-size:12px;color:#999;margin-left:8px;"></span>
+    </div>
     <div style="margin-top: 12px;" id="practiceOptions">
       <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #555;">
         <input type="checkbox" id="randomOrder" checked> 随机打乱题目顺序
@@ -262,7 +268,41 @@ function setMode(mode) {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(mode === 'practice' ? 'modePractice' : 'modeExam').classList.add('active');
   document.getElementById('practiceOptions').classList.toggle('hidden', mode === 'exam');
+  document.getElementById('examCountRow').classList.toggle('hidden', mode !== 'exam');
   document.getElementById('startBtn').textContent = mode === 'exam' ? '🚀 开始考试' : '🚀 开始刷题';
+  if (mode === 'exam') updateExamCountHint();
+}
+
+function clampExamCount() {
+  const inp = document.getElementById('examCountInput');
+  const total = getFilteredCount();
+  let v = parseInt(inp.value) || 0;
+  if (v < 1) v = 1;
+  if (total > 0 && v > total) v = total;
+  inp.value = v;
+  updateExamCountHint();
+}
+
+function setExamCountAll() {
+  const total = getFilteredCount();
+  document.getElementById('examCountInput').value = total || 1;
+  updateExamCountHint();
+}
+
+function getFilteredCount() {
+  return ALL_QUESTIONS.filter(q =>
+    selected.chapter.includes(q.chapter) &&
+    selected.type.includes(q.type) &&
+    selected.diff.includes(q.difficulty)
+  ).length;
+}
+
+function updateExamCountHint() {
+  const total = getFilteredCount();
+  const v = parseInt(document.getElementById('examCountInput').value) || 0;
+  document.getElementById('examCountHint').textContent = total > 0
+    ? (v >= total ? '(全部)' : `(从 ${total} 题中随机抽取)`)
+    : '';
 }
 
 function goHome() {
@@ -403,6 +443,10 @@ function updateCount() {
     selected.diff.includes(q.difficulty)
   );
   document.getElementById('questionCount').textContent = `共 ${filtered.length} 题`;
+  if (quizMode === 'exam') {
+    clampExamCount();
+    updateExamCountHint();
+  }
 }
 
 function startQuiz() {
@@ -420,6 +464,15 @@ function startQuiz() {
       const j = Math.floor(Math.random() * (i + 1));
       [quizQuestions[i], quizQuestions[j]] = [quizQuestions[j], quizQuestions[i]];
     }
+  }
+  
+  // 考试模式：按指定题数随机抽取
+  if (quizMode === 'exam') {
+    let count = parseInt(document.getElementById('examCountInput').value) || 0;
+    if (count < 1) count = quizQuestions.length;
+    if (count > quizQuestions.length) count = quizQuestions.length;
+    // 前面已经shuffle过了，直接取前 count 题即可（保证随机）
+    quizQuestions = quizQuestions.slice(0, count);
   }
   
   currentIndex = 0;
