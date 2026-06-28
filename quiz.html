@@ -553,7 +553,7 @@ function submitSingleAnswer(label) {
   const q = quizQuestions[currentIndex];
   userAnswers[q.id] = [label];
   if (quizMode === 'exam') {
-    if (currentIndex >= quizQuestions.length - 1) examSubmit();
+    if (currentIndex >= quizQuestions.length - 1) renderQuestion();
     else { currentIndex++; renderQuestion(); }
   } else renderQuestion();
 }
@@ -567,7 +567,7 @@ function submitAnswer() {
   if (labels.length === 0) { alert('请至少选择一个选项！'); return; }
   userAnswers[q.id] = labels;
   if (quizMode === 'exam') {
-    if (currentIndex >= quizQuestions.length - 1) examSubmit();
+    if (currentIndex >= quizQuestions.length - 1) renderQuestion();
     else { currentIndex++; renderQuestion(); }
   } else renderQuestion();
 }
